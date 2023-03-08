@@ -1,0 +1,75 @@
+[training@localhost ~]$ hive
+Logging initialized using configuration in
+file:/etc/hive/conf.dist/hive-log4j.properties
+Hive history file=/tmp/training/hive_job_log_training_202303010910_911371734.txt
+
+hive> add jar
+    > /usr/lib/hive/lib/hive-hbase-handler-0.9.0-cdh4.1.1.jar;
+Added /usr/lib/hive/lib/hive-hbase-handler-0.9.0-cdh4.1.1.jar to class path
+Added resource: /usr/lib/hive/lib/hive-hbase-handler-0.9.0-cdh4.1.1.jar
+
+hive> add jar /usr/lib/hbase/hbase.jar;
+Added /usr/lib/hbase/hbase.jar to class path
+Added resource: /usr/lib/hbase/hbase.jar
+
+hive>  CREATE EXTERNAL TABLE hbaseUserRatings (userid int, movieid int, rating int) STORED BY 'org.apache.hadoop.hive.hbase.HBaseStorageHandler' WITH SERDEPROPERTIES ("hbase.columns.mapping" =
+":key,cf1:movieid,cf1:rating") TBLPROPERTIES ("hbase.table.name" ="hbaseUserRatings");
+OK
+Time taken: 3.192 seconds
+
+hive> select * from hbaseUserRatings;
+OK
+10000   42      421
+2       43      431
+3       44      441
+
+hive> INSERT OVERWRITE TABLE hbaseUserRatings select userid, (movieid+1), rating from hbaseUserRatings;
+Total MapReduce jobs = 1
+Launching Job 1 out of 1
+Number of reduce tasks is set to 0 since there's no reduce operator
+Starting Job = job_202303010852_0003, Tracking URL =
+http://0.0.0.0:50030/jobdetails.jsp?jobid=job_202303010852_0003
+Kill Command = /usr/lib/hadoop/bin/hadoop job
+-Dmapred.job.tracker=0.0.0.0:8021 -kill job_202303010852_0003
+Hadoop job information for Stage-0: number of mappers: 1; number of reducers: 0
+2023-03-01 10:02:53,133 Stage-0 map = 0%,  reduce = 0%
+2023-03-01 10:02:56,214 Stage-0 map = 100%,  reduce = 0%, Cumulative
+CPU 1.69 sec
+2023-03-01 10:02:57,224 Stage-0 map = 100%,  reduce = 0%, Cumulative
+CPU 1.69 sec
+2023-03-01 10:02:58,266 Stage-0 map = 100%,  reduce = 100%, Cumulative
+CPU 1.69 sec
+MapReduce Total cumulative CPU time: 1 seconds 690 msec
+Ended Job = job_202303010852_00033
+Rows loaded to hbaseuserratings
+MapReduce Jobs Launched:
+Job 0: Map: 1   Cumulative CPU: 1.69 sec   HDFS Read: 0 HDFS Write: 0 SUCCESS
+Total MapReduce CPU Time Spent: 1 seconds 690 msec
+ok
+
+hive> INSERT OVERWRITE TABLE hbaseUserRatings SELECT userid, movieid,
+ratings FROM user_ratings;
+Total MapReduce jobs = 1
+Launching Job 1 out of 1
+Number of reduce tasks is set to 0 since there's no reduce operator
+Starting Job = job_202303010852_0004, Tracking URL =
+http://0.0.0.0:50030/jobdetails.jsp?jobid=job_202303010852_0004
+Kill Command = /usr/lib/hadoop/bin/hadoop job
+-Dmapred.job.tracker=0.0.0.0:8021 -kill job_202303010852_0004
+Hadoop job information for Stage-0: number of mappers: 1; number of reducers: 0
+2023-03-01 10:09:59,131 Stage-0 map = 0%,  reduce = 0%
+2023-03-01 10:10:43,277 Stage-0 map = 100%,  reduce = 0%, Cumulative
+CPU 3.49 sec
+2023-03-01 10:10:44,283 Stage-0 map = 100%,  reduce = 0%, Cumulative
+CPU 3.49 sec
+2023-03-01 10:10:45,296 Stage-0 map = 100%,  reduce = 100%, Cumulative
+CPU 3.49 sec
+MapReduce Total cumulative CPU time: 3 seconds 490 msec
+Ended Job = job_202303010852_0004
+100000 Rows loaded to hbaseuserratings
+MapReduce Jobs Launched:
+Job 0: Map: 1   Cumulative CPU: 3.49 sec   HDFS Read: 0 HDFS Write: 0 SUCCESS
+Total MapReduce CPU Time Spent: 3 seconds 490 msec
+OK
+Time taken: 50.304 seconds
+Time taken: 9.566 seconds
